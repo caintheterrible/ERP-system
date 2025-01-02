@@ -10,24 +10,18 @@ load_dotenv()
 
 BASE_DIR= os.path.dirname(os.path.dirname(os.path.abspath(__name__)))
 SECRET_KEY= os.getenv('SECRET_KEY')
-DEBUG= True
+if not SECRET_KEY:
+    raise ValueError('SECRET_KEY environment variable not set!')
+DEBUG= False
 
 CSRF_TRUSTED_ORIGINS=[]
 
-
-LOG_DIR= os.path.join(BASE_DIR, 'logs')
-INFO_DIR= os.path.join(LOG_DIR, 'info')
-ERROR_DIR= os.path.join(LOG_DIR, 'errors')
-WARNING_DIR= os.path.join(LOG_DIR, 'warnings')
-
-MONGO_DATABASE_NAME= 'mongo-erp-database'
-MONGO_URI= 'mongodb://project-tester:project-password@localhost:27017'
-
-ALLOWED_HOSTS= ['127.0.0.1']
+ALLOWED_HOSTS= []
 INSTALLED_APPS= []
 ROOT_URLCONF= 'app_config.urls'
 ASGI_APPLICATION= 'app_config.asgi.application'
 WSGI_APPLICATION= 'app_config.wsgi.application'
+
 MIDDLEWARE=[
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -36,25 +30,31 @@ MIDDLEWARE=[
 DATABASES={
     'default':{
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'erp-database',
-        'USER':'project-tester',
-        'PASSWORD':'project-password',
-        'HOST':'localhost',
-        'PORT':'5432',
+        'NAME':os.getenv('POSTGRESQL_DATABASE_NAME'),
+        'USER':os.getenv('POSTGRESQL_DATABASE_USER'),
+        'PASSWORD':os.getenv('POSTGRESQL_DATABASE_PASSWORD'),
+        'HOST':os.getenv('POSTGRESQL_DATABASE_HOST'),
+        'PORT':os.getenv('POSTGRESQL_DATABASE_PORT'),
     },
 }
 connect(
-    db=MONGO_DATABASE_NAME,
-    host=MONGO_URI,
+    db=os.getenv('MONGO_DATABASE_NAME'),
+    host=os.getenv('MONGO_URI'),
     port= 27017,
 )
 
 LANGUAGE_CODE='en-us'
 TIMEZONE= 'UTC'
 USE_TZ= True
-USE_I10N= True
-USE_LI0N= True
-STATIC='/static/'
+USE_I18N= True  # internationalization
+USE_L10N= True  # localization
+
+# Static files to be served using CDN or Nginx from frontend Angular
+
+LOG_DIR= os.path.join(BASE_DIR, 'logs')
+INFO_DIR= os.path.join(LOG_DIR, 'info')
+ERROR_DIR= os.path.join(LOG_DIR, 'errors')
+WARNING_DIR= os.path.join(LOG_DIR, 'warnings')
 
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(INFO_DIR, exist_ok=True)
@@ -66,7 +66,7 @@ LOGGING={
     'disable_existing_handlers':False,
     'handlers':{
         'info_file':{
-            'class':'logging.Handlers.RotatingFileHandler',
+            'class':'logging.handlers.RotatingFileHandler',
             'level':'INFO',
             'filename':os.path.join(INFO_DIR, 'info.logs'),
             'maxBytes':1024*1024*5,
@@ -87,7 +87,7 @@ LOGGING={
             'backupCount':5,
         },
         'console_logging':{
-            'class':'logging.handlers.StreamHandler',
+            'class':'logging.StreamHandler',
             'level':'ERROR',
         },
     },
