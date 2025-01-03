@@ -7,17 +7,18 @@ import os
 
 load_dotenv()
 
-
+# Connection management
 DATABASE_URL=f'postgresql://{os.getenv('POSTGRESQL_DATABASE_USER')}:' \
     f'{os.getenv('POSTGRESQL_DATABASE_PASSWORD')}@' \
     f'{os.getenv('POSTGRESQL_DATABASE_HOST')}:' \
     f'{os.getenv('POSTGRESQL_DATABASE_PORT')}/' \
     f'{os.getenv('POSTGRESQL_DATABASE_NAME')}'
 
-engine=  create_engine(DATABASE_URL)
-SessionLocal= sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine=  create_engine(DATABASE_URL) # For database communications
+SessionLocal= sessionmaker(autocommit=False, autoflush=False, bind=engine) # Create sessions
 Base= declarative_base()
 
+# User model
 class Employee(Base):
     __tablename__= 'users'
 
