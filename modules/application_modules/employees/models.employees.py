@@ -33,6 +33,8 @@ class Employee(Base):
         return f'<Employee (username={self.username}, email={self.email})>'
 
 
+class Manager(Employee):
+    
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
